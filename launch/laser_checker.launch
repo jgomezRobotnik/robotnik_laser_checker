@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+	<node pkg="robotnik_laser_checker" type="laser_checker.py" name="laser_checker" output="screen">
+		<!-- general args -->
+		<param name="topic" value="/rb1_base/front_laser/scan"/>
+	</node>
+</launch>
