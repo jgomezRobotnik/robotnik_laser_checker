@@ -5,14 +5,16 @@ import rospy
 import rospkg
 import os
 import time
+import datetime
 from sensor_msgs.msg import LaserScan
 
 DEFAULT_FREQ = 40.0 # Hz, 0.025 s
 
 rospy.init_node('laser_checker')
 
-tini = time.time()
-tlast = time.time()
+tact = rospy.Time(0)
+tini = rospy.Time.now()
+tlast = rospy.Time(0)
 
 rp = rospkg.RosPack()
 
@@ -23,6 +25,7 @@ emptyMessage = [] # time stamp
 
 # Save the values in a txt
 log_file = open(folder_path+"/laser_checker.log", "a+") # Append the new values
+log_file.write("#"+str(datetime.datetime.now())+"\n")
 
 # Create subscriber callback
 def callback(msg):
@@ -30,13 +33,14 @@ def callback(msg):
   global tini, tlast, log, noKeepRateMessage, emptyMessage, folder_path
 
   # Time since last message
-  tact = time.time()
-  tfreq = tact - tlast
+  tact = msg.header.stamp #time.time()
+  tfreq = (tact - tlast).to_sec()
   tactfilt = tact - tini
-  tlast = time.time()
+
+  tlast = msg.header.stamp
 
   # If node is initialised
-  if (tactfilt > 2):
+  if (tactfilt.to_sec() > 2):
 
     # If frequency is too slow
     if tfreq > 1.5*(1 / DEFAULT_FREQ): # In seconds
