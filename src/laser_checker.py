@@ -2,6 +2,8 @@
 # coding=utf-8
 
 import rospy
+import rospkg
+import os
 import time
 from sensor_msgs.msg import LaserScan
 
@@ -12,13 +14,17 @@ rospy.init_node('laser_checker')
 tini = time.time()
 tlast = time.time()
 
+rp = rospkg.RosPack()
+
+folder_path= os.path.join(rp.get_path('robotnik_laser_checker'), 'logs')
+
 noKeepRateMessage = [] # (time stamp, actual freq)
 emptyMessage = [] # time stamp
 
 # Create subscriber callback
 def callback(msg):
 
-  global tini, tlast, log, noKeepRateMessage, emptyMessage
+  global tini, tlast, log, noKeepRateMessage, emptyMessage, folder_path
 
   # Time since last message
   tact = time.time()
@@ -30,19 +36,19 @@ def callback(msg):
   if (tactfilt > 2):
 
     # Save the values in a txt
-    log = open("laser_checker.log", "a") # Append the new values
+    log_file = open(folder_path+"/laser_checker.log", "a") # Append the new values
 
     # If frequency is too slow
     if tfreq > 1.5*(1 / DEFAULT_FREQ): # In seconds
       noKeepRateMessage.append((tactfilt, 1/tfreq))
-      log.write(str(tactfilt)+":  "+str(1/tfreq)+" Hz (too slow frequency)\n")
+      log_file.write(str(tactfilt)+":  "+str(1/tfreq)+" Hz (too slow frequency)\n")
 
     # If empty message
     if len(msg.ranges) == 0:
       emptyMessage.append(tactfilt)
-      log.write(str(tactfilt)+":  EMPTY MESSAGE ERROR\n")
+      log_file.write(str(tactfilt)+":  EMPTY MESSAGE ERROR\n")
 
-    log.close()
+    log_file.close()
 
   print(noKeepRateMessage)
   print("-------")
