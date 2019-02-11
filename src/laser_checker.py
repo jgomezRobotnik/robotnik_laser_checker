@@ -21,6 +21,9 @@ folder_path= os.path.join(rp.get_path('robotnik_laser_checker'), 'logs')
 noKeepRateMessage = [] # (time stamp, actual freq)
 emptyMessage = [] # time stamp
 
+# Save the values in a txt
+log_file = open(folder_path+"/laser_checker.log", "a+") # Append the new values
+
 # Create subscriber callback
 def callback(msg):
 
@@ -35,9 +38,6 @@ def callback(msg):
   # If node is initialised
   if (tactfilt > 2):
 
-    # Save the values in a txt
-    log_file = open(folder_path+"/laser_checker.log", "a") # Append the new values
-
     # If frequency is too slow
     if tfreq > 1.5*(1 / DEFAULT_FREQ): # In seconds
       noKeepRateMessage.append((tactfilt, 1/tfreq))
@@ -48,7 +48,6 @@ def callback(msg):
       emptyMessage.append(tactfilt)
       log_file.write(str(tactfilt)+":  EMPTY MESSAGE ERROR\n")
 
-    log_file.close()
 
   print(noKeepRateMessage)
   print("-------")
@@ -58,3 +57,5 @@ def callback(msg):
 
 sub = rospy.Subscriber('/rb1_base/front_laser/scan', LaserScan, callback)
 rospy.spin()
+
+log_file.close()
